@@ -44,7 +44,11 @@ class Earth{
 
 var e=[]
 e.push(new Earth('img/earth.png',128,128, 0, 0))
-e.push(new Earth('img/earth.png',128,128, 0, 0))
+
+
+for(let i = 0; i < width*height; i++){
+    e.push(new Earth('img/earth.png',128,128, 1, 0))
+}
 
 function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height)
