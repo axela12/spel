@@ -39,6 +39,8 @@ function move(){
     if(arr.length>length) arr.shift()
 
     pos={x:pos.x+dir.x,y:pos.y+dir.y}
+
+
 }
 
 //knapptryck
