@@ -2,17 +2,31 @@ canvas=document.querySelector('canvas')
 ctx=canvas.getContext('2d')
 var width=15
 var height=15
-var res=20
+var res=32
+var uiHeight=50
 canvas.width=width*res
-canvas.height=height*res
+canvas.height=uiHeight+height*res
+
+var img=document.createElement('img')
+img.src='img/earth.png'
 
 var then,now,elapsed
-var fpsint=200
+var fpsint=260
 
 var length=5
 var arr=[]
-var pos={x:1,y:7}
+var pos={x:0,y:7}
 var dir={x:1,y:0}
+
+class Earth{
+    constructor(canvasWidth, canvasHeight){
+        this.canvasWidth=canvasWidth
+        this.canvasHeight=canvasHeight
+        this.image=document
+
+    }
+}
+
 
 function run(){
     move()
@@ -20,18 +34,26 @@ function run(){
 }
 
 function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0,0,canvas.width,canvas.height)
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0,0,canvas.width,canvas.height)
 
     for(let i = 0; i < width*height; i++){
         if(i % 2 == 0) ctx.fillStyle = 'green'
-        else ctx.fillStyle = 'gray'
-        ctx.fillRect(i%width*res,Math.floor(i/width)*res,res,res)
+        else ctx.fillStyle = 'darkgreen'
+        drawBoard(i%width*res,Math.floor(i/width)*res,res,res)
     }
+
+    ctx.drawImage(img, 0, 0, 128, 128,0*res,0*res+uiHeight,32,32)
 
     ctx.fillStyle = 'black'
     for(let i = 0; i < arr.length; i++){
-        ctx.fillRect(arr[i].x*res,arr[i].y*res,res,res)
+        drawBoard(arr[i].x*res,arr[i].y*res,res,res)
     }
+}
+
+function drawBoard(x,y,width,height){
+    ctx.fillRect(x,y+uiHeight,width,height)
 }
 
 function move(){
@@ -63,6 +85,7 @@ function keydown(key){
 window.addEventListener('load', function(){
     document.addEventListener('keydown', function(e){keydown(e.key)})
     then=Date.now()
+    draw()
     update()
 });
 
