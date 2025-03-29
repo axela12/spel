@@ -32,19 +32,20 @@ class Sprite{
         this.y=0
         this.minFrame=minFrame
         this.maxFrame=maxFrame
-        this.frame=minFrame
+        this.frame=minFrame-1
         this.frameX=0
         this.frameY=0
         this.then=0
         this.fpsint=fpsint
     }
+
     //rita sprite argument genom Sprite.draw
     static draw(sprite){
-        sprite.frame=15
         ctx.drawImage(
             sprite.image, sprite.frameX*sprite.spriteWidth, sprite.frameY*sprite.spriteHeight, sprite.spriteWidth, sprite.spriteHeight, sprite.x*res,sprite.y*res+uiHeight,32,32
         )
     }
+
     //updatera spritens frame så att den animerar
     update(){
         this.frame = this.frame < this.maxFrame ? this.frame + 1 : this.minFrame
@@ -116,11 +117,13 @@ function keydown(key){
 window.addEventListener('load', function(){
     document.addEventListener('keydown', function(e){keydown(e.key)})
     then=Date.now()
+    canvas.style.display='flex'
+
     for(let i = 0; i < s.length; i++){
         s[i].then=then
+        s[i].update()
     }
-    
-    canvas.style.display='flex'
+
     update()
 })
 
@@ -142,7 +145,7 @@ function update(){
         if((now-s[i].then)>s[i].fpsint){
             s[i].then=now-((now-s[i].then)%s[i].fpsint)
 
-            //s[i].update()
+            s[i].update()
         }
     }
 }
