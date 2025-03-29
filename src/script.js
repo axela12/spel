@@ -1,5 +1,5 @@
 //canvas, context, spelplanens bredd och höjd, upplösning per tile, ui höjd
-//längd på orm och ormens alla positioner
+//längd på orm och arr är ormens alla positioner
 canvas=document.querySelector('canvas')
 ctx=canvas.getContext('2d')
 var width=15
@@ -9,7 +9,9 @@ var uiHeight=50
 canvas.width=width*res
 canvas.height=uiHeight+height*res
 
-var then,now,fpsint=260
+var then,now,fpsint
+var fpsArr = [260,240,220,200,180,160,140,120]
+var fpsIndex = 0
 
 var length=5
 var arr=[]
@@ -23,6 +25,7 @@ class Sprite{
         'coin':'img/coin44.png',
     }
 
+    //frame blir minframe-1 för att updatera den vid start
     constructor(src,spriteWidth, spriteHeight,  minFrame, maxFrame, fpsint){
         this.image=document.getElementById('coin')//document.createElement('img')
         //this.image.src=Sprite.file[src]
@@ -58,10 +61,49 @@ var s=[]
 
 s.push(new Sprite('earth',128,128, 0, 63, 1))
 s[0].x=1;s[0].y=3
-s.push(new Sprite('coin',44,44, 0, 11, 500))
+s.push(new Sprite('coin',44,44, 0, 11, 160))
 s[1].x=1;s[1].y=1
-s.push(new Sprite('coin',44,44, 15, 17, 500))
+s.push(new Sprite('coin',44,44, 14, 25, 160))
 s[2].x=2;s[2].y=1
+
+function game(){
+    fpsint = fpsArr[fpsIndex]
+}
+
+end=false
+function gameover(){
+    end=true
+    alert()
+}
+
+//updateras efter fpsint
+function move(){
+    pos={x:pos.x+dir.x,y:pos.y+dir.y}
+
+    if(0 >= pos.x+dir && width <= pos.x+dir && arr[arr.length-2] != pos.y+0){
+        arr.push(pos)
+        if(arr.length>length) arr.shift()
+    }
+    else{
+        gameover()
+    }    
+}
+
+//knapptryck
+function keydown(key){
+    if(key=='ArrowRight' && arr[arr.length-2].x != pos.x+1 && arr[arr.length-2] != pos.y+0){
+        dir={x:1,y:0}
+    }
+    if(key=='ArrowUp' && arr[arr.length-2].x != pos.x+0 && arr[arr.length-2] != pos.y-1){
+        dir={x:0,y:-1}
+    }
+    if(key=='ArrowLeft' && arr[arr.length-2].x != pos.x-1 && arr[arr.length-2] != pos.y+0){
+        dir={x:-1,y:0}
+    }
+    if(key=='ArrowDown' && arr[arr.length-2].x != pos.x+0 && arr[arr.length-2] != pos.y+1){
+        dir={x:0,y:1}
+    }
+}
 
 //ritar 60fps på spelplanen
 function draw(){
@@ -90,30 +132,8 @@ function drawBoard(x,y,width,height){
     ctx.fillRect(x,y+uiHeight,width,height)
 }
 
-//updateras efter fpsint med ormen som rör sig
-function move(){
-    pos={x:pos.x+dir.x,y:pos.y+dir.y}
-    arr.push(pos)
-    if(arr.length>length) arr.shift()
-}
-
-//knapptryck
-function keydown(key){
-    if(key=='ArrowRight' && arr[arr.length-2].x != pos.x+1 && arr[arr.length-2] != pos.y+0){
-        dir={x:1,y:0}
-    }
-    if(key=='ArrowUp' && arr[arr.length-2].x != pos.x+0 && arr[arr.length-2] != pos.y-1){
-        dir={x:0,y:-1}
-    }
-    if(key=='ArrowLeft' && arr[arr.length-2].x != pos.x-1 && arr[arr.length-2] != pos.y+0){
-        dir={x:-1,y:0}
-    }
-    if(key=='ArrowDown' && arr[arr.length-2].x != pos.x+0 && arr[arr.length-2] != pos.y+1){
-        dir={x:0,y:1}
-    }
-}
-
 //när alla filer och dokument har laddat
+//sätter date för sprite till date.now() och sätter frame till minframe
 window.addEventListener('load', function(){
     document.addEventListener('keydown', function(e){keydown(e.key)})
     then=Date.now()
@@ -131,10 +151,12 @@ window.addEventListener('load', function(){
 function update(){
     requestAnimationFrame(update)
     now=Date.now()
+
+    game()
     draw()
 
     //om skillnad är mer än interval fpsint
-    if((now-then)>fpsint){
+    if((now-then)>fpsint && !end){
         //funktionen körs 60fps så now-then får inte vara en faktor av 60fps
         then=now-((now-then)%fpsint)
 
