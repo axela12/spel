@@ -7,8 +7,4 @@ coin
 powerup
 
 todo:
-först göra spelet, ha grid som array
-mat
-coin
-sprite animering mer rörande delar
-shop
+göra spelet, ha grid som array, mat, coin, sprite animering mer rörande delar, meny, shop
