@@ -7,8 +7,7 @@ var uiHeight=50
 canvas.width=width*res
 canvas.height=uiHeight+height*res
 
-var then,now,elapsed
-var fpsint=260
+var then,now,fpsint=260
 
 var length=5
 var arr=[]
@@ -16,7 +15,7 @@ var pos={x:0,y:7}
 var dir={x:1,y:0}
 
 class Earth{
-    constructor(src,spriteWidth, spriteHeight,  minFrame, maxFrame){
+    constructor(src,spriteWidth, spriteHeight,  minFrame, maxFrame, fpsint){
         this.image=document.createElement('img')
         this.image.src=src
         this.spriteWidth=spriteWidth
@@ -30,6 +29,7 @@ class Earth{
         this.frameX=0
         this.frameY=0
         this.then=0
+        this.fpsint=fpsint
     }
     draw(){
         ctx.drawImage(
@@ -45,9 +45,9 @@ class Earth{
 
 var s=[]
 
-s.push(new Earth('img/earth128.png',128,128, 0, 63))
+s.push(new Earth('img/earth128.png',128,128, 0, 63, 20))
 s[0].x=1;s[0].y=3
-s.push(new Earth('img/coin44.png',44,44, 0, 12))
+s.push(new Earth('img/coin44.png',44,44, 0, 11, 500))
 s[1].x=1;s[1].y=1
 
 function draw(){
@@ -64,6 +64,10 @@ function draw(){
     ctx.fillStyle = 'black'
     for(let i = 0; i < arr.length; i++){
         drawBoard(arr[i].x*res,arr[i].y*res,res,res)
+    }
+
+    for(let i = 0; i < s.length; i++){
+        s[i].draw()
     }
 }
 
@@ -98,6 +102,10 @@ window.addEventListener('load', function(){
     document.addEventListener('keydown', function(e){keydown(e.key)})
     then=Date.now()
 
+    for(let i = 0; i < s.length; i++){
+        s[i].then=then
+    }
+
     update()
 })
 
@@ -105,19 +113,21 @@ window.addEventListener('load', function(){
 function update(){
     requestAnimationFrame(update)
     now=Date.now()
+    draw()
 
-    elapsed=now-then
     //om skillnad är mer än interval fpsint
-    if(elapsed>fpsint){
-        //funktionen körs 60fps så elapsed får inte vara en faktor av 60fps
-        then=now-(elapsed%fpsint)
+    if((now-then)>fpsint){
+        //funktionen körs 60fps så now-then får inte vara en faktor av 60fps
+        then=now-((now-then)%fpsint)
 
         move()
     }
 
-    draw()
     for(let i = 0; i < s.length; i++){
-        s[i].draw()
-        s[i].update()
+        if((now-s[i].then)>s[i].fpsint){
+            s[i].then=now-((now-s[i].then)%s[i].fpsint)
+
+            s[i].update()
+        }
     }
 }
