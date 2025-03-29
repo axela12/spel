@@ -14,7 +14,7 @@ var then,now,fpsint
 const fpsArr = [260,240,220,200,180,160,140,120]
 var fpsIndex = 0
 
-var length=5
+var length=100
 var snakeArr=[]
 var pos={x:0,y:7}
 var dir={x:1,y:0}
@@ -23,6 +23,7 @@ var dir={x:1,y:0}
 class Sprite{
     //frame blir minframe-1 för att updatera den vid start
     constructor(name,spriteWidth, spriteHeight, minFrame, maxFrame, fpsint){
+        this.name=name
         this.image=document.getElementById(name)
         this.spriteWidth=spriteWidth
         this.spriteHeight=spriteHeight
@@ -78,16 +79,21 @@ function gameover(){
 
 //updateras efter fpsint
 function move(){
-    pos={x:pos.x+dir.x,y:pos.y+dir.y}
-
-    if(0 > pos.x || width <= pos.x || 0 > pos.y || height <= pos.y){
-        
+    if(0 > pos.x+dir.x || width <= pos.x+dir.x || 0 > pos.y+dir.y || height <= pos.y+dir.y){
         gameover()
+        return
     }
-    else{
-        snakeArr.push(pos)
-        if(snakeArr.length>length) snakeArr.shift()
-    }    
+
+    for(let i = 0; i < snakeArr.length; i++){
+        if(snakeArr[i].x == pos.x+dir.x && snakeArr[i].y == pos.y+dir.y){
+            gameover()
+            return
+        }
+    }
+
+    pos={x:pos.x+dir.x,y:pos.y+dir.y}
+    snakeArr.push(pos)
+    if(snakeArr.length>length) snakeArr.shift()   
 }
 
 //knapptryck kollar att huvudet inte kolliderar med tidigare ormdel
@@ -119,7 +125,7 @@ function draw(){
     }
 
     for(let i = 0; i < s.length; i++){
-        if(i!=5) Sprite.draw(s[i])
+        if(s[i].name!='explode') Sprite.draw(s[i])
     }
 
     ctx.fillStyle = 'black'
@@ -128,7 +134,7 @@ function draw(){
     }
 
     for(let i = 0; i < s.length; i++){
-        if(i==5) Sprite.draw(s[i])
+        if(s[i].name=='explode') Sprite.draw(s[i])
     }
 }
 
@@ -172,11 +178,9 @@ function update(){
         if((now - s[i].then) > s[i].fpsint){
             s[i].then = now-((now - s[i].then) % s[i].fpsint)
 
-            if(i==5){
-                if(s[i].frame==s[i].maxFrame){
-                    s.splice(5, 1)
-                    continue
-                }
+            if(s[i].name=='explode' && s[i].frame==s[i].maxFrame){
+                s.splice(5, 1)
+                continue
             }
 
             s[i].update()
