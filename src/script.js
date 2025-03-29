@@ -15,25 +15,20 @@ var fpsArr = [260,240,220,200,180,160,140,120]
 var fpsIndex = 0
 
 var length=5
-var arr=[]
+var snakeArr=[]
 var pos={x:0,y:7}
 var dir={x:1,y:0}
 
 //sprite klass med img sprite size, frames och interval
 class Sprite{
-    static file = {
-        'earth':'img/earth128.png',
-        'coin':'img/coin44.png',
-    }
-
     //frame blir minframe-1 för att updatera den vid start
-    constructor(src,spriteWidth, spriteHeight,  minFrame, maxFrame, fpsint){
-        this.image=document.getElementById('coin')//document.createElement('img')
-        //this.image.src=Sprite.file[src]
+    constructor(name,spriteWidth, spriteHeight, minFrame, maxFrame, fpsint){
+        this.image=document.getElementById(name)
         this.spriteWidth=spriteWidth
         this.spriteHeight=spriteHeight
         this.x=0
         this.y=0
+        this.scale=32
         this.minFrame=minFrame
         this.maxFrame=maxFrame
         this.frame=minFrame-1
@@ -46,7 +41,7 @@ class Sprite{
     //rita sprite argument genom Sprite.draw
     static draw(sprite){
         ctx.drawImage(
-            sprite.image, sprite.frameX*sprite.spriteWidth, sprite.frameY*sprite.spriteHeight, sprite.spriteWidth, sprite.spriteHeight, sprite.x*res,sprite.y*res+uiHeight,32,32
+            sprite.image, sprite.frameX*sprite.spriteWidth, sprite.frameY*sprite.spriteHeight, sprite.spriteWidth, sprite.spriteHeight, sprite.x*res,sprite.y*res+uiHeight,sprite.scale,sprite.scale
         )
     }
 
@@ -61,11 +56,13 @@ class Sprite{
 var s=[]
 
 s.push(new Sprite('earth',128,128, 0, 63, 1))
-s[0].x=1;s[0].y=3
-s.push(new Sprite('coin',44,44, 0, 11, 160))
+s[0].x=0;s[0].y=1
+s.push(new Sprite('coin',44,44, 0, 11, 150))
 s[1].x=1;s[1].y=1
-s.push(new Sprite('coin',44,44, 14, 25, 160))
+s.push(new Sprite('coin',44,44, 14, 25, 150))
 s[2].x=2;s[2].y=1
+s.push(new Sprite('apple',84,84, 0, 9, 150))
+s[3].x=3;s[3].y=1
 
 function game(){
     fpsint = fpsArr[fpsIndex]
@@ -74,34 +71,33 @@ function game(){
 end=false
 function gameover(){
     end=true
-    alert()
 }
 
 //updateras efter fpsint
 function move(){
     pos={x:pos.x+dir.x,y:pos.y+dir.y}
 
-    if(0 >= pos.x+dir && width <= pos.x+dir && arr[arr.length-2] != pos.y+0){
-        arr.push(pos)
-        if(arr.length>length) arr.shift()
+    if(0 >= pos.x+dir && width <= pos.x+dir && snakeArr[snakeArr.length-2] != pos.y+0){
+        snakeArr.push(pos)
+        if(snakeArr.length>length) snakeArr.shift()
     }
     else{
         gameover()
     }    
 }
 
-//knapptryck
+//knapptryck kollar att huvudet inte kolliderar med tidigare ormdel
 function keydown(key){
-    if(key=='ArrowRight' && arr[arr.length-2].x != pos.x+1 && arr[arr.length-2] != pos.y+0){
+    if(key=='ArrowRight' && snakeArr[snakeArr.length-2].x != pos.x+1 && snakeArr[snakeArr.length-2] != pos.y+0){
         dir={x:1,y:0}
     }
-    if(key=='ArrowUp' && arr[arr.length-2].x != pos.x+0 && arr[arr.length-2] != pos.y-1){
+    if(key=='ArrowUp' && snakeArr[snakeArr.length-2].x != pos.x+0 && snakeArr[snakeArr.length-2] != pos.y-1){
         dir={x:0,y:-1}
     }
-    if(key=='ArrowLeft' && arr[arr.length-2].x != pos.x-1 && arr[arr.length-2] != pos.y+0){
+    if(key=='ArrowLeft' && snakeArr[snakeArr.length-2].x != pos.x-1 && snakeArr[snakeArr.length-2] != pos.y+0){
         dir={x:-1,y:0}
     }
-    if(key=='ArrowDown' && arr[arr.length-2].x != pos.x+0 && arr[arr.length-2] != pos.y+1){
+    if(key=='ArrowDown' && snakeArr[snakeArr.length-2].x != pos.x+0 && snakeArr[snakeArr.length-2] != pos.y+1){
         dir={x:0,y:1}
     }
 }
@@ -123,8 +119,8 @@ function draw(){
     }
 
     ctx.fillStyle = 'black'
-    for(let i = 0; i < arr.length; i++){
-        drawBoard(arr[i].x*res,arr[i].y*res,res,res)
+    for(let i = 0; i < snakeArr.length; i++){
+        drawBoard(snakeArr[i].x*res,snakeArr[i].y*res,res,res)
     }
 }
 
