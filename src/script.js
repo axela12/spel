@@ -14,13 +14,12 @@ var arr=[]
 var pos={x:0,y:7}
 var dir={x:1,y:0}
 
-class Earth{
+class Sprite{
     constructor(src,spriteWidth, spriteHeight,  minFrame, maxFrame, fpsint){
         this.image=document.createElement('img')
         this.image.src=src
         this.spriteWidth=spriteWidth
         this.spriteHeight=spriteHeight
-        this.scale=32
         this.x=0
         this.y=0
         this.minFrame=minFrame
@@ -31,23 +30,23 @@ class Earth{
         this.then=0
         this.fpsint=fpsint
     }
-    draw(){
+    static draw(sprite){
         ctx.drawImage(
-            this.image, this.frameX*this.spriteWidth, this.frameY*this.spriteHeight, this.spriteWidth, this.spriteHeight, this.x*res,this.y*res+uiHeight,32,32
+            sprite.image, sprite.frameX*sprite.spriteWidth, sprite.frameY*sprite.spriteHeight, sprite.spriteWidth, sprite.spriteHeight, sprite.x*res,sprite.y*res+uiHeight,32,32
         )
     }
     update(){
         this.frame = this.frame < this.maxFrame ? this.frame + 1 : this.minFrame
         this.frameX = this.frame % (this.image.width/this.spriteWidth)
-        this.frameY = Math.floor(this.frame/this.image.height*this.spriteHeight)
+        this.frameY = Math.floor(this.frame/(this.image.width/this.spriteWidth))
     }
 }
 
 var s=[]
 
-s.push(new Earth('img/earth128.png',128,128, 0, 63, 20))
+s.push(new Sprite('img/earth128.png',128,128, 0, 63, 1))
 s[0].x=1;s[0].y=3
-s.push(new Earth('img/coin44.png',44,44, 0, 11, 500))
+s.push(new Sprite('img/coin44.png',44,44, 0, 11, 500))
 s[1].x=1;s[1].y=1
 
 function draw(){
@@ -67,7 +66,7 @@ function draw(){
     }
 
     for(let i = 0; i < s.length; i++){
-        s[i].draw()
+        Sprite.draw(s[i])
     }
 }
 
@@ -105,7 +104,6 @@ window.addEventListener('load', function(){
     for(let i = 0; i < s.length; i++){
         s[i].then=then
     }
-
     update()
 })
 
