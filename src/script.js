@@ -16,16 +16,16 @@ var pos={x:0,y:7}
 var dir={x:1,y:0}
 
 class Earth{
-    constructor(src,spriteWidth, spriteHeight, x, y){
+    constructor(src,spriteWidth, spriteHeight,  minFrame, maxFrame){
         this.image=document.createElement('img')
         this.image.src=src
         this.spriteWidth=spriteWidth
         this.spriteHeight=spriteHeight
         this.scale=32
-        this.x=x
-        this.y=y
-        this.minFrame=0
-        this.maxFrame=63
+        this.x=0
+        this.y=0
+        this.minFrame=minFrame
+        this.maxFrame=maxFrame
         this.frame=0
         this.frameX=0
         this.frameY=0
@@ -43,12 +43,11 @@ class Earth{
 }
 
 var e=[]
-e.push(new Earth('img/earth.png',128,128, 0, 0))
 
-
-for(let i = 0; i < width*height; i++){
-    e.push(new Earth('img/earth.png',128,128, 1, 0))
-}
+e.push(new Earth('img/earth128.png',128,128, 0, 63))
+e[0].x=1;e[0].y=3
+e.push(new Earth('img/coin44.png',44,44, 0, 12))
+e[1].x=1;e[1].y=1
 
 function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height)
@@ -64,11 +63,6 @@ function draw(){
     ctx.fillStyle = 'black'
     for(let i = 0; i < arr.length; i++){
         drawBoard(arr[i].x*res,arr[i].y*res,res,res)
-    }
-
-    for(let i = 0; i < e.length; i++){
-        e[i].draw()
-        e[i].update()
     }
 }
 
@@ -124,4 +118,8 @@ function update(){
     }
 
     draw()
+    for(let i = 0; i < e.length; i++){
+        e[i].draw()
+        e[i].update()
+    }
 }
