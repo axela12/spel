@@ -73,7 +73,10 @@ function game(){
 end=false
 function gameover(){
     s.push(new Sprite('explode',100,100, 0, 49, 50))
-    s[5].x=2;s[5].y=0;s[5].scale=400
+    var explode = s.find(sprite => sprite.name === 'explode')
+    explode.x=2;
+    explode.y=0;
+    explode.scale=400
     end=true
 }
 
@@ -85,7 +88,7 @@ function move(){
     }
 
     for(let i = 0; i < snakeArr.length; i++){
-        if(snakeArr[i].x == pos.x+dir.x && snakeArr[i].y == pos.y+dir.y){
+        if(snakeArr[i].x === pos.x+dir.x && snakeArr[i].y === pos.y+dir.y){
             gameover()
             return
         }
@@ -98,16 +101,16 @@ function move(){
 
 //knapptryck kollar att huvudet inte kolliderar med tidigare ormdel
 function keydown(key){
-    if(key=='ArrowRight' && snakeArr[snakeArr.length-2].x != pos.x+1 && snakeArr[snakeArr.length-2] != pos.y+0){
+    if(key==='ArrowRight' && snakeArr[snakeArr.length-2].x != pos.x+1 && snakeArr[snakeArr.length-2] != pos.y+0){
         dir={x:1,y:0}
     }
-    if(key=='ArrowUp' && snakeArr[snakeArr.length-2].x != pos.x+0 && snakeArr[snakeArr.length-2] != pos.y-1){
+    if(key==='ArrowUp' && snakeArr[snakeArr.length-2].x != pos.x+0 && snakeArr[snakeArr.length-2] != pos.y-1){
         dir={x:0,y:-1}
     }
-    if(key=='ArrowLeft' && snakeArr[snakeArr.length-2].x != pos.x-1 && snakeArr[snakeArr.length-2] != pos.y+0){
+    if(key==='ArrowLeft' && snakeArr[snakeArr.length-2].x != pos.x-1 && snakeArr[snakeArr.length-2] != pos.y+0){
         dir={x:-1,y:0}
     }
-    if(key=='ArrowDown' && snakeArr[snakeArr.length-2].x != pos.x+0 && snakeArr[snakeArr.length-2] != pos.y+1){
+    if(key==='ArrowDown' && snakeArr[snakeArr.length-2].x != pos.x+0 && snakeArr[snakeArr.length-2] != pos.y+1){
         dir={x:0,y:1}
     }
 }
@@ -134,7 +137,7 @@ function draw(){
     }
 
     for(let i = 0; i < s.length; i++){
-        if(s[i].name=='explode') Sprite.draw(s[i])
+        if(s[i].name==='explode') Sprite.draw(s[i])
     }
 }
 
@@ -154,7 +157,7 @@ window.addEventListener('load', function(){
         s[i].then = then
         s[i].update()
     }
-
+    
     update()
 })
 
@@ -178,7 +181,7 @@ function update(){
         if((now - s[i].then) > s[i].fpsint){
             s[i].then = now-((now - s[i].then) % s[i].fpsint)
 
-            if(s[i].name=='explode' && s[i].frame==s[i].maxFrame){
+            if(s[i].name==='explode' && s[i].frame===s[i].maxFrame){
                 s.splice(5, 1)
                 continue
             }
