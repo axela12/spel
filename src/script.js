@@ -1,7 +1,8 @@
 //canvas, context, spelplanens bredd och höjd, upplösning per tile, ui höjd
 //längd på orm och arr är ormens alla positioner
-canvas=document.querySelector('canvas')
-ctx=canvas.getContext('2d')
+//fpsArr är olika interval för move()
+var canvas=document.querySelector('canvas')
+var ctx=canvas.getContext('2d')
 var width=15
 var height=15
 var res=32
