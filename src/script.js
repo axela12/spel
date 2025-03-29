@@ -11,7 +11,7 @@ canvas.width=width*res
 canvas.height=uiHeight+height*res
 
 var then,now,fpsint
-var fpsArr = [260,240,220,200,180,160,140,120]
+const fpsArr = [260,240,220,200,180,160,140,120]
 var fpsIndex = 0
 
 var length=5
@@ -54,7 +54,6 @@ class Sprite{
 }
 
 var s=[]
-
 s.push(new Sprite('earth',128,128, 0, 63, 1))
 s[0].x=0;s[0].y=1
 s.push(new Sprite('coin',44,44, 0, 11, 150))
@@ -63,6 +62,8 @@ s.push(new Sprite('coin',44,44, 14, 25, 150))
 s[2].x=2;s[2].y=1
 s.push(new Sprite('apple',84,84, 0, 9, 150))
 s[3].x=3;s[3].y=1
+s.push(new Sprite('bomb',256,256, 0, 0, 0))
+s[4].x=4;s[4].y=1
 
 function game(){
     fpsint = fpsArr[fpsIndex]
@@ -70,6 +71,8 @@ function game(){
 
 end=false
 function gameover(){
+    s.push(new Sprite('explode',100,100, 0, 49, 50))
+    s[5].x=2;s[5].y=0;s[5].scale=400
     end=true
 }
 
@@ -77,12 +80,13 @@ function gameover(){
 function move(){
     pos={x:pos.x+dir.x,y:pos.y+dir.y}
 
-    if(0 >= pos.x+dir && width <= pos.x+dir && snakeArr[snakeArr.length-2] != pos.y+0){
-        snakeArr.push(pos)
-        if(snakeArr.length>length) snakeArr.shift()
+    if(0 > pos.x || width <= pos.x || 0 > pos.y || height <= pos.y){
+        
+        gameover()
     }
     else{
-        gameover()
+        snakeArr.push(pos)
+        if(snakeArr.length>length) snakeArr.shift()
     }    
 }
 
@@ -115,12 +119,16 @@ function draw(){
     }
 
     for(let i = 0; i < s.length; i++){
-        Sprite.draw(s[i])
+        if(i!=5) Sprite.draw(s[i])
     }
 
     ctx.fillStyle = 'black'
     for(let i = 0; i < snakeArr.length; i++){
         drawBoard(snakeArr[i].x*res,snakeArr[i].y*res,res,res)
+    }
+
+    for(let i = 0; i < s.length; i++){
+        if(i==5) Sprite.draw(s[i])
     }
 }
 
@@ -133,11 +141,11 @@ function drawBoard(x,y,width,height){
 //sätter date för sprite till date.now() och sätter frame till minframe
 window.addEventListener('load', function(){
     document.addEventListener('keydown', function(e){keydown(e.key)})
-    then=Date.now()
+    then = Date.now()
     canvas.style.display='flex'
 
     for(let i = 0; i < s.length; i++){
-        s[i].then=then
+        s[i].then = then
         s[i].update()
     }
 
@@ -147,22 +155,29 @@ window.addEventListener('load', function(){
 //kör move() vid fpsint millisekunder
 function update(){
     requestAnimationFrame(update)
-    now=Date.now()
+    now = Date.now()
 
     game()
     draw()
 
     //om skillnad är mer än interval fpsint
-    if((now-then)>fpsint && !end){
+    if((now - then) > fpsint && !end){
         //funktionen körs 60fps så now-then får inte vara en faktor av 60fps
-        then=now-((now-then)%fpsint)
+        then = now-((now - then) % fpsint)
 
         move()
     }
 
     for(let i = 0; i < s.length; i++){
-        if((now-s[i].then)>s[i].fpsint){
-            s[i].then=now-((now-s[i].then)%s[i].fpsint)
+        if((now - s[i].then) > s[i].fpsint){
+            s[i].then = now-((now - s[i].then) % s[i].fpsint)
+
+            if(i==5){
+                if(s[i].frame==s[i].maxFrame){
+                    s.splice(5, 1)
+                    continue
+                }
+            }
 
             s[i].update()
         }
