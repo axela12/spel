@@ -29,6 +29,7 @@ class Earth{
         this.frame=0
         this.frameX=0
         this.frameY=0
+        this.then=0
     }
     draw(){
         ctx.drawImage(
@@ -42,12 +43,12 @@ class Earth{
     }
 }
 
-var e=[]
+var s=[]
 
-e.push(new Earth('img/earth128.png',128,128, 0, 63))
-e[0].x=1;e[0].y=3
-e.push(new Earth('img/coin44.png',44,44, 0, 12))
-e[1].x=1;e[1].y=1
+s.push(new Earth('img/earth128.png',128,128, 0, 63))
+s[0].x=1;s[0].y=3
+s.push(new Earth('img/coin44.png',44,44, 0, 12))
+s[1].x=1;s[1].y=1
 
 function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height)
@@ -71,26 +72,23 @@ function drawBoard(x,y,width,height){
 }
 
 function move(){
+    pos={x:pos.x+dir.x,y:pos.y+dir.y}
     arr.push(pos)
     if(arr.length>length) arr.shift()
-
-    pos={x:pos.x+dir.x,y:pos.y+dir.y}
-
-
 }
 
 //knapptryck
 function keydown(key){
-    if(key=='ArrowRight' && arr[arr.length-1].x!=pos.x+1 && arr[arr.length-1]!=pos.y+0){
+    if(key=='ArrowRight' && arr[arr.length-2].x != pos.x+1 && arr[arr.length-2] != pos.y+0){
         dir={x:1,y:0}
     }
-    if(key=='ArrowUp' && arr[arr.length-1].x!=pos.x+0 && arr[arr.length-1]!=pos.y-1){
+    if(key=='ArrowUp' && arr[arr.length-2].x != pos.x+0 && arr[arr.length-2] != pos.y-1){
         dir={x:0,y:-1}
     }
-    if(key=='ArrowLeft' && arr[arr.length-1].x!=pos.x-1 && arr[arr.length-1]!=pos.y+0){
+    if(key=='ArrowLeft' && arr[arr.length-2].x != pos.x-1 && arr[arr.length-2] != pos.y+0){
         dir={x:-1,y:0}
     }
-    if(key=='ArrowDown' && arr[arr.length-1].x!=pos.x+0 && arr[arr.length-1]!=pos.y+1){
+    if(key=='ArrowDown' && arr[arr.length-2].x != pos.x+0 && arr[arr.length-2] != pos.y+1){
         dir={x:0,y:1}
     }
 }
@@ -99,16 +97,16 @@ function keydown(key){
 window.addEventListener('load', function(){
     document.addEventListener('keydown', function(e){keydown(e.key)})
     then=Date.now()
+
     update()
 })
 
-//kör run() vid fpsint millisekunder
+//kör move() vid fpsint millisekunder
 function update(){
     requestAnimationFrame(update)
-
     now=Date.now()
-    elapsed=now-then
 
+    elapsed=now-then
     //om skillnad är mer än interval fpsint
     if(elapsed>fpsint){
         //funktionen körs 60fps så elapsed får inte vara en faktor av 60fps
@@ -118,8 +116,8 @@ function update(){
     }
 
     draw()
-    for(let i = 0; i < e.length; i++){
-        e[i].draw()
-        e[i].update()
+    for(let i = 0; i < s.length; i++){
+        s[i].draw()
+        s[i].update()
     }
 }
