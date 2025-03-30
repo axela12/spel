@@ -45,16 +45,15 @@ var res=32
 var uiHeight=50
 canvas.width=width*res
 canvas.height=uiHeight+height*res
-var then,now,fpsint
+var then,now,fpsint,fpsIndex,earthThen,coins
 
-var fpsIndex = 0
 var isOver = false
 var isEarth = false
-var earthThen
-var earthTime = 10000
+var earthTime = 20000
 var applePos={}
 var bombPos=[]
 var earthPos=[]
+var coinPos=[]
 var spriteAnim=[
     new Sprite('apple',84,84, 0, 9, 150),
     new Sprite('bomb',256,256, 0, 0, 0),
@@ -64,7 +63,6 @@ var spriteAnim=[
     new Sprite('body',90,90, 3, 3, 0),
     new Sprite('coin',44,44, 0, 11, 150),
 ]
-
 var length=5
 var pos={x:1,y:7}
 var snakeArr=[{x:pos.x,y:pos.y}]
@@ -104,15 +102,19 @@ function randomChance(list, r, chance){
     }
 }
 
+//ändra fpsint beroende på längd
 function game(){
-    if(length > 5) fpsIndex = 1
-    if(length > 6) fpsIndex = 2
-    if(length > 7) fpsIndex = 3
-    if(length > 8) fpsIndex = 4
+    fpsIndex = 0
+    if(length > 7) fpsIndex = 1
+    if(length > 10) fpsIndex = 2
+    if(length > 15) fpsIndex = 3
+    if(length > 20) fpsIndex = 4
+    if(length > 25) fpsIndex = 5
 
-    fpsint = 260 - 20 * fpsIndex
+    fpsint = 260 - 30 * fpsIndex
 }
 
+//när ormer kolliderar en sprängs
 function gameover(){
     var explode = new Sprite('explode',100,100, 0, 49, 50)
     spriteAnim.push(explode)
@@ -150,7 +152,8 @@ function move(){
 
         var r = Math.random()
         randomChance(bombPos, r, 0.25)
-        randomChance(earthPos, r, 0.25)
+        randomChance(earthPos, r, 0.1)
+        randomChance(coinPos, r, 0.8)
     }
 
     //bomb
@@ -161,6 +164,7 @@ function move(){
         }
     }
 
+    //jord
     for(let i = 0; i < earthPos.length; i++){
         if(earthPos[i].x === pos.x+dir.x && earthPos[i].y === pos.y+dir.y){
             isEarth = true
@@ -169,6 +173,15 @@ function move(){
         }
     }
 
+    //coin
+    for(let i = 0; i < coinPos.length; i++){
+        if(coinPos[i].x === pos.x+dir.x && coinPos[i].y === pos.y+dir.y){
+            coins++
+            coinPos.splice(i, 1)
+        }
+    }
+
+    //ändrar huvdets position med dir
     if(!isEarth){
         pos={x:pos.x+dir.x,y:pos.y+dir.y}
     }
@@ -177,6 +190,7 @@ function move(){
         pos={x:(((pos.x + dir.x) % width) + width) % width, y:(((pos.y + dir.y) % height) + height) % height}
     }
 
+    //snakearr får huvudets position
     snakeArr.push(pos)
     if(snakeArr.length>length) snakeArr.shift()   
 }
@@ -241,10 +255,16 @@ function draw(){
     ctx.fillStyle = 'black'
     ctx.font = '15px Arial'
     ctx.fillText(`LENGTH: ${length}`, 10, 20)
-    ctx.fillStyle = 'blue'
-    if(isEarth) ctx.fillText(`LOOP EFFECT: ${Math.round((earthTime - (now - earthThen)) / 1000)}`, 10, 40)
+    if(isEarth){
+        ctx.fillStyle = 'blue'
+        ctx.fillText(`LOOP EFFECT: ${Math.round((earthTime - (now - earthThen)) / 1000)}`, 10, 40)
+    }    
+    ctx.fillStyle = 'black'
+    ctx.fillText(`X ${coins}`, 190, 30)
+    Sprite.draw(spriteAnim[6], 5, 0.25)
 
     //sprite
+    //flyttar kontext så att spelplanens kant blir 0
     ctx.save()
     ctx.translate(0, uiHeight)
 
@@ -256,6 +276,10 @@ function draw(){
 
     for(let i = 0; i < earthPos.length; i++){
         Sprite.draw(spriteAnim[2], earthPos[i].x, earthPos[i].y)
+    }
+
+    for(let i = 0; i < coinPos.length; i++){
+        Sprite.draw(spriteAnim[6], coinPos[i].x, coinPos[i].y)
     }
 
     for(let i = 0; i < snakeArr.length-1; i++){
@@ -274,6 +298,7 @@ function draw(){
         if(spriteAnim[i].name === 'explode') Sprite.draw(spriteAnim[i], spriteAnim[i].x, spriteAnim[i].y)
     }
 
+    //återställer till att kontext blir canvas hörn
     ctx.restore()
 }
 
@@ -289,6 +314,7 @@ window.addEventListener('load', function(){
         spriteAnim[i].then = then
         spriteAnim[i].update()
     }
+    coins = 0
 
     update()
 })
