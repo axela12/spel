@@ -11,7 +11,7 @@ class Sprite{
         this.spriteHeight=spriteHeight
         this.x=0
         this.y=0
-        this.scale=32
+        this.scale=res
         this.minFrame=minFrame
         this.maxFrame=maxFrame
         this.frame=minFrame-1
@@ -24,7 +24,8 @@ class Sprite{
     //rita sprite argument genom Sprite.draw
     static draw(sprite, x, y){
         ctx.drawImage(
-            sprite.image, sprite.frameX*sprite.spriteWidth, sprite.frameY*sprite.spriteHeight, sprite.spriteWidth, sprite.spriteHeight, x*res,y*res+uiHeight,sprite.scale,sprite.scale
+            sprite.image, sprite.frameX*sprite.spriteWidth, sprite.frameY*sprite.spriteHeight,
+            sprite.spriteWidth, sprite.spriteHeight, x*res,y*res,sprite.scale,sprite.scale
         )
     }
 
@@ -58,8 +59,11 @@ var spriteAnim=[
     new Sprite('apple',84,84, 0, 9, 150),
     new Sprite('bomb',256,256, 0, 0, 0),
     new Sprite('earth',128,128, 0, 63, 1),
+    new Sprite('body',90,90, 2, 2, 0),
+    new Sprite('body',90,90, 0, 2, 100),
+    new Sprite('body',90,90, 3, 3, 0),
     new Sprite('coin',44,44, 0, 11, 150),
-    new Sprite('coin',44,44, 14, 25, 150)]
+]
 
 var length=5
 var pos={x:1,y:7}
@@ -202,6 +206,24 @@ function drawBoard(x,y){
     ctx.fillRect(x * res,y * res + uiHeight,res,res)
 }
 
+function drawHead(){
+    var x = pos.x*res+res / 2;
+    var y = pos.y*res+res / 2;
+
+    var n = 0
+    if(dir.x === 1 && dir.y === 0) n = 0
+    if(dir.x === 0 && dir.y === 1) n = 1
+    if(dir.x === -1 && dir.y === 0) n = 2
+    if(dir.x ===0 && dir.y === -1) n = 3
+    var angle = n * Math.PI / 2
+
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.rotate(angle)
+    Sprite.draw(spriteAnim[4], -0.5, -0.5)
+    ctx.restore();
+}
+
 //ritar 60fps på spelplanen
 function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height)
@@ -223,6 +245,9 @@ function draw(){
     if(isEarth) ctx.fillText(`LOOP EFFECT: ${Math.round((earthTime - (now - earthThen)) / 1000)}`, 10, 40)
 
     //sprite
+    ctx.save()
+    ctx.translate(0, uiHeight)
+
     Sprite.draw(spriteAnim[0], applePos.x, applePos.y)
 
     for(let i = 0; i < bombPos.length; i++){
@@ -233,15 +258,23 @@ function draw(){
         Sprite.draw(spriteAnim[2], earthPos[i].x, earthPos[i].y)
     }
 
-    ctx.fillStyle = 'black'
-    for(let i = 0; i < snakeArr.length; i++){
-        drawBoard(snakeArr[i].x,snakeArr[i].y)
+    for(let i = 0; i < snakeArr.length-1; i++){
+        Sprite.draw(spriteAnim[3], snakeArr[i].x, snakeArr[i].y)
+    }
+
+    if(isOver){
+        Sprite.draw(spriteAnim[5], pos.x, pos.y)
+    }
+    else{
+        drawHead()
     }
 
     //explosion
     for(let i = 0; i < spriteAnim.length; i++){
         if(spriteAnim[i].name === 'explode') Sprite.draw(spriteAnim[i], spriteAnim[i].x, spriteAnim[i].y)
     }
+
+    ctx.restore()
 }
 
 //när alla filer och dokument har laddat
@@ -287,7 +320,7 @@ function update(){
 
             //om gameover animeras explode
             if(spriteAnim[i].name==='explode' && spriteAnim[i].frame===spriteAnim[i].maxFrame){
-                spriteAnim.splice(5, 1)
+                spriteAnim.splice(spriteAnim.length - 1, 1)
                 continue
             }
 
