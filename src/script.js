@@ -360,7 +360,7 @@ function shop(){
 
 //mer loop time
 function buyUpgrade1(){
-    if(coins>=upgrade1cost){
+    if(coins>=upgrade1cost && !upgrade1){
         coins-=upgrade1cost
         upgrade1 = true
         shop()
@@ -369,7 +369,7 @@ function buyUpgrade1(){
 
 //långsammare orm
 function buyUpgrade2(){
-    if(coins>=upgrade2cost){
+    if(coins>=upgrade2cost && !upgrade2){
         coins-=upgrade2cost
         upgrade2 = true
         shop()
