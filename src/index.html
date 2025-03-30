@@ -12,11 +12,27 @@
                 height: 100vh;
                 justify-content: center;
                 align-items: center;
+                user-select: none;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 20px;
             }
             canvas{
-                display: none;
-                cursor: pointer;
+                display: flex;
                 box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.445);
+            }
+            div{
+                display: flex;
+                position: absolute;
+                background: white;
+                box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.445);
+                width: 300px;
+                height: 300px;
+                flex-flow: column;
+                align-items: center;
+            }
+            button{
+                margin-bottom: 10px;
+                width: 100px;
             }
         </style>
     </head>
@@ -28,6 +44,23 @@
             <img id="explode" src="img/explode100.png">
             <img id="bomb" src="img/bomb256.png">
             <img id="body" src="img/body90.png">
+        </div>
+        <div id="menu">
+            <h1>Snake</h1>
+            <button onclick="start()">Play</button>
+            <button onclick="shop()">Shop</button>
+            <button onclick="control()">Control</button></div>
+        </div>
+        <div id="shop">
+            <h1>Shop</h1>
+            <button onclick="load()">Back</button>
+        </div>
+        <div id="control">
+            <h1>Control</h1>
+            <button onclick="load()">Back</button>
+            <p>
+                Use arrow keys.
+            </p>
         </div>
         <canvas></canvas>
         <script src="script.js"></script>

@@ -39,21 +39,23 @@ class Sprite{
 
 var canvas=document.querySelector('canvas')
 var ctx=canvas.getContext('2d')
+var menu = document.querySelector('#menu')
 var width=15
 var height=15
 var res=32
 var uiHeight=50
 canvas.width=width*res
 canvas.height=uiHeight+height*res
-var then,now,fpsint,fpsIndex,earthThen,coins
-
-var isOver = false
-var isEarth = false
-var earthTime = 20000
-var applePos={}
+var then,now,fpsint,fpsIndex,earthThen,isEarth,earthTime,coins,isOver
+var applePos
 var bombPos=[]
 var earthPos=[]
 var coinPos=[]
+var snakeArr=[]
+var length
+var pos
+var dir
+
 var spriteAnim=[
     new Sprite('apple',84,84, 0, 9, 150),
     new Sprite('bomb',256,256, 0, 0, 0),
@@ -63,10 +65,6 @@ var spriteAnim=[
     new Sprite('body',90,90, 3, 3, 0),
     new Sprite('coin',44,44, 0, 11, 150),
 ]
-var length=5
-var pos={x:1,y:7}
-var snakeArr=[{x:pos.x,y:pos.y}]
-var dir={x:1,y:0}
 
 //går igenom alla tiles om snakearr inte innehåller en tile
 //väljer random från möjliga tiles
@@ -83,6 +81,9 @@ function random(){
         }
         for(let j = 0; j < earthPos.length; j++){
             if(earthPos[j].x === i%width && earthPos[j].y === Math.floor(i/width)) notBody = false
+        }
+        for(let j = 0; j < coinPos.length; j++){
+            if(coinPos[j].x === i%width && coinPos[j].y === Math.floor(i/width)) notBody = false
         }
 
         if(notBody) ran.push({x:i%width,y:Math.floor(i/width)})
@@ -211,6 +212,7 @@ function keydown(key){
     }
 }
 
+//kollar att ormendel innan huvud inte är lika med pos + dir
 function checkDir(key, keyname, dir){
     return key === keyname && snakeArr[snakeArr.length - 2].x != pos.x+dir.x && snakeArr[snakeArr.length - 2] != pos.y+dir.y
 }
@@ -220,6 +222,9 @@ function drawBoard(x,y){
     ctx.fillRect(x * res,y * res + uiHeight,res,res)
 }
 
+//ritar huvud sprite och roterar context
+//sparar kontext och tranformerar
+//sedan återställer så spelplanen blir 0
 function drawHead(){
     var x = pos.x*res+res / 2;
     var y = pos.y*res+res / 2;
@@ -303,21 +308,58 @@ function draw(){
 }
 
 //när alla filer och dokument har laddat
-//sätter date för sprite till date.now() och sätter frame till minframe
 window.addEventListener('load', function(){
-    document.addEventListener('keydown', function(e){keydown(e.key)})
-    then = Date.now()
-    canvas.style.display='flex'
+    canvas.style.visibility = 'hidden'
+    coins = 0
+    earthTime = 20000
+    load()
+})
 
+function load(){
+    menu.style.visibility = 'visible'
+    document.querySelector('#shop').style.visibility = 'hidden'
+    document.querySelector('#control').style.visibility = 'hidden'
+}
+
+function shop(){
+    menu.style.visibility = 'hidden'
+    document.querySelector('#shop').style.visibility = 'visible'
+    document.querySelector('#control').style.visibility = 'hidden'
+}
+
+function control(){
+    menu.style.visibility = 'hidden'
+    document.querySelector('#shop').style.visibility = 'hidden'
+    document.querySelector('#control').style.visibility = 'visible'
+}
+
+//start startas med en button
+//sätter date för sprite till date.now() och sätter frame till minframe
+function start(){
+    document.addEventListener('keydown', function(e){keydown(e.key)})
+    menu.style.visibility='hidden'
+    canvas.style.visibility='visible'
+    isOver = false
+    isEarth = false
     applePos = random()
+    bombPos=[]
+    earthPos=[]
+    coinPos=[]
+
+    length=5
+    pos={x:1,y:7}
+    dir={x:1,y:0}
+    snakeArr=[{x:pos.x,y:pos.y}]
+
+    //sätter sprite.then till then
+    then = Date.now()
     for(let i = 0; i < spriteAnim.length; i++){
         spriteAnim[i].then = then
         spriteAnim[i].update()
     }
-    coins = 0
-
     update()
-})
+    updateMove()
+}
 
 //kör move() vid fpsint millisekunder
 function update(){
@@ -326,14 +368,6 @@ function update(){
 
     game()
     draw()
-
-    //om skillnad är mer än interval fpsint
-    if((now - then) > fpsint && !isOver){
-        //funktionen körs 60fps så now-then får inte vara en faktor av 60fps
-        then = now-((now - then) % fpsint)
-
-        move()
-    }
 
     if(isEarth && (now - earthThen) > earthTime){
         isEarth = false
@@ -352,5 +386,23 @@ function update(){
 
             spriteAnim[i].update()
         }
+    }
+}
+
+//updatera move() beroende på fpsint
+function updateMove(){
+    if(isOver){
+        menu.style.visibility = 'visible'
+        return
+    }
+
+    requestAnimationFrame(updateMove)
+
+    //om skillnad är mer än interval fpsint
+    if((now - then) > fpsint){
+        //funktionen körs 60fps så now-then får inte vara en faktor av 60fps
+        then = now-((now - then) % fpsint)
+
+        move()
     }
 }
