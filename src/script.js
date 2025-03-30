@@ -46,7 +46,7 @@ var res=32
 var uiHeight=50
 canvas.width=width*res
 canvas.height=uiHeight+height*res
-var then,now,fpsint,fpsIndex,earthThen,isLoop,loopTime,coins,isOver
+var then,now,fpsint,fpsIndex,loopThen,isLoop,loopTime,coins,isOver
 var applePos
 var bombPos=[]
 var loopPos=[]
@@ -136,11 +136,22 @@ function gameover(){
     isOver=true
 }
 
+function isCollide(item){
+    if(!isLoop){
+        return item.x === pos.x+dir.x && item.y === pos.y+dir.y
+    }
+    else{
+        //loop ger ormen går runt kanterna
+        var newpos={x:(((pos.x + dir.x) % width) + width) % width, y:(((pos.y + dir.y) % height) + height) % height}
+        return item.x === newpos.x && item.y === newpos.y
+    }
+}
+
 //updateras efter fpsint
 function move(){
     //träffa spelplanen
     if(0 > pos.x+dir.x || width <= pos.x+dir.x || 0 > pos.y+dir.y || height <= pos.y+dir.y){
-        //om earth effekt är av
+        //om loop effekt är av
         if(!isLoop){
             gameover()
             return
@@ -149,14 +160,14 @@ function move(){
 
     //träffa orm
     for(let i = 0; i < snakeArr.length; i++){
-        if(snakeArr[i].x === pos.x+dir.x && snakeArr[i].y === pos.y+dir.y){
+        if(isCollide(snakeArr[i])){
             gameover()
             return
         }
     }
 
     //äpple
-    if(applePos.x === pos.x + dir.x && applePos.y === pos.y + dir.y){
+    if(isCollide(applePos)){
         applePos = random()
         length++
 
@@ -168,7 +179,7 @@ function move(){
 
     //bomb
     for(let i = 0; i < bombPos.length; i++){
-        if(bombPos[i].x === pos.x+dir.x && bombPos[i].y === pos.y+dir.y){
+        if(isCollide(bombPos[i])){
             gameover()
             return
         }
@@ -176,16 +187,16 @@ function move(){
 
     //jord
     for(let i = 0; i < loopPos.length; i++){
-        if(loopPos[i].x === pos.x+dir.x && loopPos[i].y === pos.y+dir.y){
+        if(isCollide(loopPos[i])){
             isLoop = true
-            earthThen = now
+            loopThen = now
             loopPos.splice(i, 1)
         }
     }
 
     //coin
     for(let i = 0; i < coinPos.length; i++){
-        if(coinPos[i].x === pos.x+dir.x && coinPos[i].y === pos.y+dir.y){
+        if(isCollide(coinPos[i])){
             coins++
             coinPos.splice(i, 1)
         }
@@ -196,7 +207,7 @@ function move(){
         pos={x:pos.x+dir.x,y:pos.y+dir.y}
     }
     else{
-        //earth ger ormen går runt kanterna
+        //loop ger ormen går runt kanterna
         pos={x:(((pos.x + dir.x) % width) + width) % width, y:(((pos.y + dir.y) % height) + height) % height}
     }
 
@@ -271,7 +282,7 @@ function draw(){
     ctx.fillText(`LENGTH: ${length}`, 10, 20)
     if(isLoop){
         ctx.fillStyle = 'blue'
-        ctx.fillText(`LOOP EFFECT: ${Math.round((loopTime - (now - earthThen)) / 1000)}`, 10, 40)
+        ctx.fillText(`LOOP EFFECT: ${Math.round((loopTime - (now - loopThen)) / 1000)}`, 10, 40)
     }    
     ctx.fillStyle = 'black'
     ctx.fillText(`X ${coins}`, 190, 30)
@@ -413,7 +424,7 @@ function update(){
     game()
     draw()
 
-    if(isLoop && (now - earthThen) > loopTime){
+    if(isLoop && (now - loopThen) > loopTime){
         isLoop = false
     }
 
