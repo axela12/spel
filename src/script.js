@@ -344,6 +344,7 @@ function load(){
     menu.style.visibility = 'visible'
     document.querySelector('#shop').style.visibility = 'hidden'
     document.querySelector('#control').style.visibility = 'hidden'
+    if(upgrade1) loopTime = 60000
 }
 
 //ladda shop
@@ -363,7 +364,6 @@ function buyUpgrade1(){
     if(coins>=upgrade1cost){
         coins-=upgrade1cost
         upgrade1 = true
-        loopTime = 60000
         shop()
     }
 }
