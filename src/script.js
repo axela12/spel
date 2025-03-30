@@ -319,7 +319,7 @@ function draw(){
 //när alla filer och dokument har laddat
 window.addEventListener('load', function(){
     canvas.style.visibility = 'hidden'
-    coins = 20
+    coins = 0
     loopTime = 20000
     upgrade1 = false
     upgrade2 = false
