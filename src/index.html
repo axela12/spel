@@ -20,7 +20,7 @@
                 display: flex;
                 box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.445);
             }
-            div{
+            #menu, #shop, #control{
                 display: flex;
                 position: absolute;
                 background: white;
@@ -29,9 +29,22 @@
                 height: 300px;
                 flex-flow: column;
                 align-items: center;
+                text-align: center;
+            }
+            div > *{
+                margin-bottom: 10px;
+                width: 100%;
+            }
+            #shop p{
+                margin: 0;
+                display: flex;
+                flex-flow: row;
+                justify-content: space-between;
+                width: 250px;
+                font-size: 15px;
+                padding: 5px 10px 5px 10px;
             }
             button{
-                margin-bottom: 10px;
                 width: 100px;
             }
         </style>
@@ -54,6 +67,13 @@
         <div id="shop">
             <h1>Shop</h1>
             <button onclick="load()">Back</button>
+            <h3 id="coins"></h3>
+            <p>
+                <span>More loop time</span><button id="button1" onclick="buyUpgrade1()"></button>
+            </p>
+            <p>
+                <span>Slower snake</span><button id="button2" onclick="buyUpgrade2()"></button>
+            </p>
         </div>
         <div id="control">
             <h1>Control</h1>

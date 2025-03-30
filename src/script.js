@@ -46,16 +46,18 @@ var res=32
 var uiHeight=50
 canvas.width=width*res
 canvas.height=uiHeight+height*res
-var then,now,fpsint,fpsIndex,earthThen,isEarth,earthTime,coins,isOver
+var then,now,fpsint,fpsIndex,earthThen,isLoop,loopTime,coins,isOver
 var applePos
 var bombPos=[]
-var earthPos=[]
+var loopPos=[]
 var coinPos=[]
 var snakeArr=[]
 var length
 var pos
 var dir
+var upgrade1,upgrade2,upgrade1cost,upgrade2cost
 
+//olika värden för animationer
 var spriteAnim=[
     new Sprite('apple',84,84, 0, 9, 150),
     new Sprite('bomb',256,256, 0, 0, 0),
@@ -79,8 +81,8 @@ function random(){
         for(let j = 0; j < bombPos.length; j++){
             if(bombPos[j].x === i%width && bombPos[j].y === Math.floor(i/width)) notBody = false
         }
-        for(let j = 0; j < earthPos.length; j++){
-            if(earthPos[j].x === i%width && earthPos[j].y === Math.floor(i/width)) notBody = false
+        for(let j = 0; j < loopPos.length; j++){
+            if(loopPos[j].x === i%width && loopPos[j].y === Math.floor(i/width)) notBody = false
         }
         for(let j = 0; j < coinPos.length; j++){
             if(coinPos[j].x === i%width && coinPos[j].y === Math.floor(i/width)) notBody = false
@@ -104,13 +106,20 @@ function randomChance(list, r, chance){
 }
 
 //ändra fpsint beroende på längd
+//upgrade2 ger långsammare orm
 function game(){
     fpsIndex = 0
-    if(length > 7) fpsIndex = 1
-    if(length > 10) fpsIndex = 2
-    if(length > 15) fpsIndex = 3
-    if(length > 20) fpsIndex = 4
-    if(length > 25) fpsIndex = 5
+    if(upgrade2){
+        if(length > 10) fpsIndex = 1
+        if(length > 20) fpsIndex = 2
+    }
+    else{
+        if(length > 7) fpsIndex = 1
+        if(length > 10) fpsIndex = 2
+        if(length > 15) fpsIndex = 3
+        if(length > 20) fpsIndex = 4
+        if(length > 25) fpsIndex = 5
+    }
 
     fpsint = 260 - 30 * fpsIndex
 }
@@ -132,7 +141,7 @@ function move(){
     //träffa spelplanen
     if(0 > pos.x+dir.x || width <= pos.x+dir.x || 0 > pos.y+dir.y || height <= pos.y+dir.y){
         //om earth effekt är av
-        if(!isEarth){
+        if(!isLoop){
             gameover()
             return
         }
@@ -153,7 +162,7 @@ function move(){
 
         var r = Math.random()
         randomChance(bombPos, r, 0.25)
-        randomChance(earthPos, r, 0.1)
+        randomChance(loopPos, r, 0.1)
         randomChance(coinPos, r, 0.8)
     }
 
@@ -166,11 +175,11 @@ function move(){
     }
 
     //jord
-    for(let i = 0; i < earthPos.length; i++){
-        if(earthPos[i].x === pos.x+dir.x && earthPos[i].y === pos.y+dir.y){
-            isEarth = true
+    for(let i = 0; i < loopPos.length; i++){
+        if(loopPos[i].x === pos.x+dir.x && loopPos[i].y === pos.y+dir.y){
+            isLoop = true
             earthThen = now
-            earthPos.splice(i, 1)
+            loopPos.splice(i, 1)
         }
     }
 
@@ -183,7 +192,7 @@ function move(){
     }
 
     //ändrar huvdets position med dir
-    if(!isEarth){
+    if(!isLoop){
         pos={x:pos.x+dir.x,y:pos.y+dir.y}
     }
     else{
@@ -260,9 +269,9 @@ function draw(){
     ctx.fillStyle = 'black'
     ctx.font = '15px Arial'
     ctx.fillText(`LENGTH: ${length}`, 10, 20)
-    if(isEarth){
+    if(isLoop){
         ctx.fillStyle = 'blue'
-        ctx.fillText(`LOOP EFFECT: ${Math.round((earthTime - (now - earthThen)) / 1000)}`, 10, 40)
+        ctx.fillText(`LOOP EFFECT: ${Math.round((loopTime - (now - earthThen)) / 1000)}`, 10, 40)
     }    
     ctx.fillStyle = 'black'
     ctx.fillText(`X ${coins}`, 190, 30)
@@ -279,8 +288,8 @@ function draw(){
         Sprite.draw(spriteAnim[1], bombPos[i].x, bombPos[i].y)
     }
 
-    for(let i = 0; i < earthPos.length; i++){
-        Sprite.draw(spriteAnim[2], earthPos[i].x, earthPos[i].y)
+    for(let i = 0; i < loopPos.length; i++){
+        Sprite.draw(spriteAnim[2], loopPos[i].x, loopPos[i].y)
     }
 
     for(let i = 0; i < coinPos.length; i++){
@@ -310,23 +319,54 @@ function draw(){
 //när alla filer och dokument har laddat
 window.addEventListener('load', function(){
     canvas.style.visibility = 'hidden'
-    coins = 0
-    earthTime = 20000
+    coins = 20
+    loopTime = 20000
+    upgrade1 = false
+    upgrade2 = false
+    upgrade1cost = 10
+    upgrade2cost = 10
     load()
 })
 
+//ladda huvudmeny
 function load(){
     menu.style.visibility = 'visible'
     document.querySelector('#shop').style.visibility = 'hidden'
     document.querySelector('#control').style.visibility = 'hidden'
 }
 
+//ladda shop
 function shop(){
     menu.style.visibility = 'hidden'
     document.querySelector('#shop').style.visibility = 'visible'
     document.querySelector('#control').style.visibility = 'hidden'
+    document.querySelector('#coins').innerHTML = `Coins: ${coins}`
+    if(upgrade1) document.querySelector('#button1').innerHTML = 'Bought'
+    else document.querySelector('#button1').innerHTML = `Cost: ${upgrade1cost}`
+    if(upgrade2) document.querySelector('#button2').innerHTML = 'Bought'
+    else document.querySelector('#button2').innerHTML = `Cost: ${upgrade2cost}`
 }
 
+//mer loop time
+function buyUpgrade1(){
+    if(coins>=upgrade1cost){
+        coins-=upgrade1cost
+        upgrade1 = true
+        loopTime = 60000
+        shop()
+    }
+}
+
+//långsammare orm
+function buyUpgrade2(){
+    if(coins>=upgrade2cost){
+        coins-=upgrade2cost
+        upgrade2 = true
+        shop()
+    }
+}
+
+//ladda kontroll
 function control(){
     menu.style.visibility = 'hidden'
     document.querySelector('#shop').style.visibility = 'hidden'
@@ -340,12 +380,16 @@ function start(){
     menu.style.visibility='hidden'
     canvas.style.visibility='visible'
     isOver = false
-    isEarth = false
+    isLoop = false
     applePos = random()
     bombPos=[]
-    earthPos=[]
+    loopPos=[]
     coinPos=[]
 
+    //längd på orm
+    //huvud position
+    //huvudets riktning
+    //hela ormen
     length=5
     pos={x:1,y:7}
     dir={x:1,y:0}
@@ -369,8 +413,8 @@ function update(){
     game()
     draw()
 
-    if(isEarth && (now - earthThen) > earthTime){
-        isEarth = false
+    if(isLoop && (now - earthThen) > loopTime){
+        isLoop = false
     }
 
     //kör med alla sprite i spriteanim varje fpsint
