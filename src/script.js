@@ -344,7 +344,6 @@ function load(){
     menu.style.visibility = 'visible'
     document.querySelector('#shop').style.visibility = 'hidden'
     document.querySelector('#control').style.visibility = 'hidden'
-    if(upgrade1) loopTime = 60000
 }
 
 //ladda shop
@@ -392,6 +391,7 @@ function start(){
     canvas.style.visibility='visible'
     isOver = false
     isLoop = false
+    if(upgrade1) loopTime = 60000
     applePos = random()
     bombPos=[]
     loopPos=[]
