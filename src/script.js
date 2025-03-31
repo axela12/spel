@@ -1,6 +1,3 @@
-//canvas, context, spelplanens bredd och höjd, upplösning per tile, ui höjd
-//längd på orm och arr är ormens alla positioner
-//fpsArr är olika interval för move()
 //sprite klass med img sprite size, frames och interval
 class Sprite{
     //frame blir minframe-1 för att updatera den vid start
@@ -37,6 +34,12 @@ class Sprite{
     }
 }
 
+//canvas, context, spelplanens bredd och höjd, upplösning per tile, ui höjd
+//längd på orm och arr är ormens alla positioner
+//fpsint är olika interval för move()
+//then,now,fpsint,fpsindex kontrollerar move() interval i updatemove()
+//loopthen,looptime kontrollerar tiden for loop effekt
+//isloop,isover kontrollerar olika event
 var canvas=document.querySelector('canvas')
 var ctx=canvas.getContext('2d')
 var menu = document.querySelector('#menu')
@@ -136,6 +139,8 @@ function gameover(){
     isOver=true
 }
 
+//kollar om ormen kolliderar
+//om isloop kommer ormen gå runt spelplanen
 function isCollide(item){
     if(!isLoop){
         return item.x === pos.x+dir.x && item.y === pos.y+dir.y
