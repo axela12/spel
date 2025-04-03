@@ -40,9 +40,12 @@ class Sprite{
 //then,now,fpsint,fpsindex kontrollerar move() interval i updatemove()
 //loopthen,looptime kontrollerar tiden for loop effekt
 //isloop,isover kontrollerar olika event
-var canvas=document.querySelector('canvas')
+var canvas=document.querySelector('.game')
+var Menu = document.querySelector('.menu')
+var Shop = document.querySelector('.shop')
+var Control = document.querySelector('.control')
 var ctx=canvas.getContext('2d')
-var menu = document.querySelector('#menu')
+
 var width=15
 var height=15
 var res=32
@@ -50,14 +53,11 @@ var uiHeight=50
 canvas.width=width*res
 canvas.height=uiHeight+height*res
 var then,now,fpsint,fpsIndex,loopThen,isLoop,loopTime,coins,isOver
-var applePos
+var applePos,snakeLength,pos,dir,rotation,isBombed
 var bombPos=[]
 var loopPos=[]
 var coinPos=[]
 var snakeArr=[]
-var length
-var pos
-var dir
 var upgrade1,upgrade2,upgrade1cost,upgrade2cost
 
 //olika värden för animationer
@@ -65,13 +65,13 @@ var spriteAnim=[
     new Sprite('apple',84,84, 0, 9, 150),
     new Sprite('bomb',256,256, 0, 0, 0),
     new Sprite('earth',128,128, 0, 63, 1),
-    new Sprite('body',90,90, 2, 2, 0),
-    new Sprite('body',90,90, 0, 2, 100),
-    new Sprite('body',90,90, 3, 3, 0),
+    new Sprite('body',90,90, 0, 0, 0),
+    new Sprite('body',90,90, 0, 3, 100),
+    new Sprite('body',90,90, 4, 4, 0),
     new Sprite('coin',44,44, 0, 11, 150),
 ]
 
-//går igenom alla tiles om snakearr inte innehåller en tile
+//går igenom alla tiles som inte innehåller en sprite
 //väljer random från möjliga tiles
 function random(){
     var ran=[]
@@ -80,6 +80,9 @@ function random(){
         var notBody = true
         for(let j = 0; j < snakeArr.length; j++){
             if(snakeArr[j].x === i%width && snakeArr[j].y === Math.floor(i/width)) notBody = false
+        }
+        if(applePos){
+            if(applePos.x === i%width && applePos.y === Math.floor(i/width)) notBody = false
         }
         for(let j = 0; j < bombPos.length; j++){
             if(bombPos[j].x === i%width && bombPos[j].y === Math.floor(i/width)) notBody = false
@@ -100,7 +103,7 @@ function random(){
 //chans att få item
 function randomChance(list, r, chance){
     if(r < chance){
-        item = random()
+        var item = random()
 
         if(Object.keys(item).length > 0){
             list.push(item)
@@ -113,15 +116,15 @@ function randomChance(list, r, chance){
 function game(){
     fpsIndex = 0
     if(upgrade2){
-        if(length > 10) fpsIndex = 1
-        if(length > 20) fpsIndex = 2
+        if(snakeLength > 10) fpsIndex = 1
+        if(snakeLength > 20) fpsIndex = 2
     }
     else{
-        if(length > 7) fpsIndex = 1
-        if(length > 10) fpsIndex = 2
-        if(length > 15) fpsIndex = 3
-        if(length > 20) fpsIndex = 4
-        if(length > 25) fpsIndex = 5
+        if(snakeLength > 7) fpsIndex = 1
+        if(snakeLength > 10) fpsIndex = 2
+        if(snakeLength > 15) fpsIndex = 3
+        if(snakeLength > 20) fpsIndex = 4
+        if(snakeLength > 25) fpsIndex = 5
     }
 
     fpsint = 260 - 30 * fpsIndex
@@ -129,17 +132,19 @@ function game(){
 
 //när ormer kolliderar en sprängs
 function gameover(){
+    explode()
+    isOver=true
+}
+
+function explode(){
     var explode = new Sprite('explode',100,100, 0, 49, 50)
     spriteAnim.push(explode)
     explode.x=0;
     explode.y=-4;
     explode.scale=500
-    bombPos = []
-
-    isOver=true
 }
 
-//kollar om ormen kolliderar
+//kollar om ormen kolliderar med item
 //om isloop kommer ormen gå runt spelplanen
 function isCollide(item){
     if(!isLoop){
@@ -154,7 +159,7 @@ function isCollide(item){
 
 //updateras efter fpsint
 function move(){
-    //träffa spelplanen
+    //ormen träffar spelplanen
     if(0 > pos.x+dir.x || width <= pos.x+dir.x || 0 > pos.y+dir.y || height <= pos.y+dir.y){
         //om loop effekt är av
         if(!isLoop){
@@ -163,7 +168,7 @@ function move(){
         }
     }
 
-    //träffa orm
+    //ormen träffar ormen
     for(let i = 0; i < snakeArr.length; i++){
         if(isCollide(snakeArr[i])){
             gameover()
@@ -171,26 +176,35 @@ function move(){
         }
     }
 
-    //äpple
+    //äpple ökar length
     if(isCollide(applePos)){
         applePos = random()
-        length++
+        snakeLength++
 
         var r = Math.random()
-        randomChance(bombPos, r, 0.25)
+        randomChance(bombPos, r, 0.9)
         randomChance(loopPos, r, 0.1)
-        randomChance(coinPos, r, 0.8)
+        randomChance(coinPos, r, 0.5)
     }
 
-    //bomb
+    //bomb minskar length
     for(let i = 0; i < bombPos.length; i++){
         if(isCollide(bombPos[i])){
-            gameover()
-            return
+            if(snakeLength - 5 >= 2){
+                bombPos.splice(i, 1)
+                snakeLength -= 5
+                explode()
+                isBombed = true
+            }
+            else{
+                bombPos.splice(i, 1)
+                gameover()
+                return
+            }
         }
     }
 
-    //jord
+    //jord ger looptime
     for(let i = 0; i < loopPos.length; i++){
         if(isCollide(loopPos[i])){
             isLoop = true
@@ -207,18 +221,30 @@ function move(){
         }
     }
 
-    //ändrar huvdets position med dir
-    if(!isLoop){
-        pos={x:pos.x+dir.x,y:pos.y+dir.y}
+    if(snakeArr.length>snakeLength) snakeArr.shift()
+
+    if(isBombed){
+        if(snakeArr.length <= snakeLength) isBombed = false
     }
     else{
-        //loop ger ormen går runt kanterna
-        pos={x:(((pos.x + dir.x) % width) + width) % width, y:(((pos.y + dir.y) % height) + height) % height}
-    }
+        //roterar huvudet
+        if(dir.x === 1 && dir.y === 0) rotation = 0
+        if(dir.x === 0 && dir.y === 1) rotation = 1
+        if(dir.x === -1 && dir.y === 0) rotation = 2
+        if(dir.x === 0 && dir.y === -1) rotation = 3
+        
+        //ändrar huvdets position med dir
+        if(!isLoop){
+            pos={x:pos.x+dir.x,y:pos.y+dir.y}
+        }
+        else{
+            //loop ger ormen går runt kanterna
+            pos={x:(((pos.x + dir.x) % width) + width) % width, y:(((pos.y + dir.y) % height) + height) % height}
+        }
 
-    //snakearr får huvudets position
-    snakeArr.push(pos)
-    if(snakeArr.length>length) snakeArr.shift()   
+        //snakearr får huvudets position
+        snakeArr.push(pos)
+    }
 }
 
 //knapptryck kollar att huvudet inte kolliderar med tidigare ormdel
@@ -249,17 +275,12 @@ function drawBoard(x,y){
 
 //ritar huvud sprite och roterar context
 //sparar kontext och tranformerar
-//sedan återställer så spelplanen blir 0
+//sedan återställer så spelplanen 0,0 blir centrum
 function drawHead(){
     var x = pos.x*res+res / 2;
     var y = pos.y*res+res / 2;
 
-    var n = 0
-    if(dir.x === 1 && dir.y === 0) n = 0
-    if(dir.x === 0 && dir.y === 1) n = 1
-    if(dir.x === -1 && dir.y === 0) n = 2
-    if(dir.x ===0 && dir.y === -1) n = 3
-    var angle = n * Math.PI / 2
+    var angle = rotation * Math.PI / 2
 
     ctx.save()
     ctx.translate(x, y)
@@ -283,8 +304,8 @@ function draw(){
 
     //ui
     ctx.fillStyle = 'black'
-    ctx.font = '15px Arial'
-    ctx.fillText(`LENGTH: ${length}`, 10, 20)
+    ctx.font = "15px 'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', sans-serif"
+    ctx.fillText(`LENGTH: ${snakeArr.length}`, 10, 20)
     if(isLoop){
         ctx.fillStyle = 'blue'
         ctx.fillText(`LOOP EFFECT: ${Math.round((loopTime - (now - loopThen)) / 1000)}`, 10, 40)
@@ -294,7 +315,7 @@ function draw(){
     Sprite.draw(spriteAnim[6], 5, 0.25)
 
     //sprite
-    //flyttar kontext så att spelplanens kant blir 0
+    //flyttar kontext så att spelplanen 0,0 blir centrum
     ctx.save()
     ctx.translate(0, uiHeight)
 
@@ -334,28 +355,27 @@ function draw(){
 
 //när alla filer och dokument har laddat
 window.addEventListener('load', function(){
-    canvas.style.visibility = 'hidden'
     coins = 0
     loopTime = 20000
     upgrade1 = false
     upgrade2 = false
     upgrade1cost = 10
     upgrade2cost = 10
-    load()
+    menu()
 })
 
 //ladda huvudmeny
-function load(){
-    menu.style.visibility = 'visible'
-    document.querySelector('#shop').style.visibility = 'hidden'
-    document.querySelector('#control').style.visibility = 'hidden'
+function menu(){
+    Menu.classList.add('show')
+    Shop.classList.remove('show')
+    Control.classList.remove('show')
 }
 
 //ladda shop
 function shop(){
-    menu.style.visibility = 'hidden'
-    document.querySelector('#shop').style.visibility = 'visible'
-    document.querySelector('#control').style.visibility = 'hidden'
+    Menu.classList.remove('show')
+    Shop.classList.add('show')
+    Control.classList.remove('show')
     document.querySelector('#coins').innerHTML = `Coins: ${coins}`
     if(upgrade1) document.querySelector('#button1').innerHTML = 'Bought'
     else document.querySelector('#button1').innerHTML = `Cost: ${upgrade1cost}`
@@ -383,17 +403,17 @@ function buyUpgrade2(){
 
 //ladda kontroll
 function control(){
-    menu.style.visibility = 'hidden'
-    document.querySelector('#shop').style.visibility = 'hidden'
-    document.querySelector('#control').style.visibility = 'visible'
+    Menu.classList.remove('show')
+    Shop.classList.remove('show')
+    Control.classList.add('show')
 }
 
 //start startas med en button
 //sätter date för sprite till date.now() och sätter frame till minframe
 function start(){
     document.addEventListener('keydown', function(e){keydown(e.key)})
-    menu.style.visibility='hidden'
-    canvas.style.visibility='visible'
+    Menu.classList.remove('show')
+    canvas.classList.add('show')
     isOver = false
     isLoop = false
     if(upgrade1) loopTime = 60000
@@ -406,10 +426,12 @@ function start(){
     //huvud position
     //huvudets riktning
     //hela ormen
-    length=5
+    snakeLength=5
     pos={x:1,y:7}
     dir={x:1,y:0}
     snakeArr=[{x:pos.x,y:pos.y}]
+    rotation = 0
+    isBombed = false
 
     //sätter sprite.then till then
     then = Date.now()
@@ -452,7 +474,7 @@ function update(){
 //updatera move() beroende på fpsint
 function updateMove(){
     if(isOver){
-        menu.style.visibility = 'visible'
+        menu()
         return
     }
 

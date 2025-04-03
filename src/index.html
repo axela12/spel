@@ -13,14 +13,18 @@
                 justify-content: center;
                 align-items: center;
                 user-select: none;
-                font-family: Arial, Helvetica, sans-serif;
                 font-size: 20px;
             }
-            canvas{
+            * {
+                font-family:'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', sans-serif;
+            }
+            .game{
                 display: flex;
                 box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.445);
+                visibility: hidden;
+                opacity: 0;
             }
-            #menu, #shop, #control{
+            .menu, .shop, .control{
                 display: flex;
                 position: absolute;
                 background: white;
@@ -30,12 +34,19 @@
                 flex-flow: column;
                 align-items: center;
                 text-align: center;
+                visibility: hidden;
+                opacity: 0;
+                transition: all 700ms ease-in-out;
+            }
+            .show{
+                visibility: visible;
+                opacity: 1;
             }
             div > *{
                 margin-bottom: 10px;
                 width: 100%;
             }
-            #shop p{
+            .shop p{
                 margin: 0;
                 display: flex;
                 flex-flow: row;
@@ -58,15 +69,15 @@
             <img id="bomb" src="img/bomb256.png">
             <img id="body" src="img/body90.png">
         </div>
-        <div id="menu">
+        <div class="menu">
             <h1>Snake</h1>
             <button onclick="start()">Play</button>
             <button onclick="shop()">Shop</button>
             <button onclick="control()">Control</button></div>
         </div>
-        <div id="shop">
+        <div class="shop">
             <h1>Shop</h1>
-            <button onclick="load()">Back</button>
+            <button onclick="menu()">Back</button>
             <h3 id="coins"></h3>
             <p>
                 <span>More loop time</span><button id="button1" onclick="buyUpgrade1()"></button>
@@ -75,14 +86,14 @@
                 <span>Slower snake</span><button id="button2" onclick="buyUpgrade2()"></button>
             </p>
         </div>
-        <div id="control">
+        <div class="control">
             <h1>Control</h1>
-            <button onclick="load()">Back</button>
+            <button onclick="menu()">Back</button>
             <p>
                 Use arrow keys.
             </p>
         </div>
-        <canvas></canvas>
+        <canvas class="game"></canvas>
         <script src="script.js"></script>
     </body>
 </html>
