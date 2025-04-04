@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <title>Snake</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,6 +23,7 @@
                 box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.445);
                 visibility: hidden;
                 opacity: 0;
+                transition: all 700ms ease-in-out;
             }
             .menu, .shop, .control{
                 display: flex;
@@ -45,6 +46,9 @@
             div > *{
                 margin-bottom: 10px;
                 width: 100%;
+            }
+            .menu h3{
+                height: 30px;
             }
             .shop p{
                 margin: 0;
@@ -71,6 +75,7 @@
         </div>
         <div class="menu">
             <h1>Snake</h1>
+            <h3 id="record"></h3>
             <button onclick="start()">Play</button>
             <button onclick="shop()">Shop</button>
             <button onclick="control()">Control</button></div>

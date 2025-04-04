@@ -53,7 +53,7 @@ var uiHeight=50
 canvas.width=width*res
 canvas.height=uiHeight+height*res
 var then,now,fpsint,fpsIndex,loopThen,isLoop,loopTime,coins,isOver
-var applePos,snakeLength,pos,dir,rotation,isBombed
+var applePos,snakeLength,snakeRecord,pos,dir,rotation,isBombed
 var bombPos=[]
 var loopPos=[]
 var coinPos=[]
@@ -182,8 +182,8 @@ function move(){
         snakeLength++
 
         var r = Math.random()
-        randomChance(bombPos, r, 0.9)
-        randomChance(loopPos, r, 0.1)
+        randomChance(bombPos, r, 0.7)
+        randomChance(loopPos, r, 0.3)
         randomChance(coinPos, r, 0.5)
     }
 
@@ -303,16 +303,28 @@ function draw(){
     }
 
     //ui
-    ctx.fillStyle = 'black'
+    if(isBombed) ctx.fillStyle = 'red'
+    else ctx.fillStyle = 'black'
     ctx.font = "15px 'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', sans-serif"
-    ctx.fillText(`LENGTH: ${snakeArr.length}`, 10, 20)
+    ctx.fillText(`LENGTH: ${snakeArr.length-1}`, 40, 24)
+    ctx.fillStyle = 'black'
+    ctx.fillText(`${coins}`, 285, 24)
     if(isLoop){
         ctx.fillStyle = 'blue'
-        ctx.fillText(`LOOP EFFECT: ${Math.round((loopTime - (now - loopThen)) / 1000)}`, 10, 40)
-    }    
-    ctx.fillStyle = 'black'
-    ctx.fillText(`X ${coins}`, 190, 30)
-    Sprite.draw(spriteAnim[6], 5, 0.25)
+        ctx.fillText(`LOOP: ${Math.round((loopTime - (now - loopThen)) / 1000)}`, 175, 24)
+    } 
+
+    //rita bilder på ui
+    for(let i = 7; i < spriteAnim.length; i++){
+        if(spriteAnim[i].name != 'explode'){
+            if(spriteAnim[i].name === 'earth'){
+                if(isLoop) Sprite.draw(spriteAnim[i], spriteAnim[i].x, spriteAnim[i].y)
+            }
+            else{
+                Sprite.draw(spriteAnim[i], spriteAnim[i].x, spriteAnim[i].y)
+            }
+        }
+    }
 
     //sprite
     //flyttar kontext så att spelplanen 0,0 blir centrum
@@ -361,6 +373,27 @@ window.addEventListener('load', function(){
     upgrade2 = false
     upgrade1cost = 10
     upgrade2cost = 10
+    snakeRecord = 0
+
+    //ui bilder
+    var body = new Sprite('body',90,90, 0, 3, 100)
+    spriteAnim.push(body)
+    body.x=0.25
+    body.y=0.25
+    body.scale=24
+
+    var earth = new Sprite('earth',128,128, 0, 63, 1)
+    spriteAnim.push(earth)
+    earth.x=4.5
+    earth.y=0.25
+    earth.scale=24
+
+    var coin = new Sprite('coin',44,44, 0, 11, 150)
+    spriteAnim.push(coin)
+    coin.x=8
+    coin.y=0.25
+    coin.scale=24
+
     menu()
 })
 
@@ -369,6 +402,7 @@ function menu(){
     Menu.classList.add('show')
     Shop.classList.remove('show')
     Control.classList.remove('show')
+    if(snakeRecord > 0) document.querySelector('#record').innerHTML = `Record: ${snakeRecord}`
 }
 
 //ladda shop
@@ -417,7 +451,6 @@ function start(){
     isOver = false
     isLoop = false
     if(upgrade1) loopTime = 60000
-    applePos = random()
     bombPos=[]
     loopPos=[]
     coinPos=[]
@@ -432,6 +465,7 @@ function start(){
     snakeArr=[{x:pos.x,y:pos.y}]
     rotation = 0
     isBombed = false
+    applePos = random()
 
     //sätter sprite.then till then
     then = Date.now()
@@ -474,6 +508,7 @@ function update(){
 //updatera move() beroende på fpsint
 function updateMove(){
     if(isOver){
+        if(snakeLength > snakeRecord) snakeRecord = snakeLength
         menu()
         return
     }
