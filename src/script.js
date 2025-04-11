@@ -11,7 +11,7 @@ class Sprite{
         this.scale=res
         this.minFrame=minFrame
         this.maxFrame=maxFrame
-        this.frame=minFrame-1
+        this.frame=minFrame-1 //gör sprite.frame till minFrame när sprite.update i start() 
         this.frameX=0
         this.frameY=0
         this.then=0
@@ -35,24 +35,25 @@ class Sprite{
 }
 
 //canvas, context, spelplanens bredd och höjd, upplösning per tile, ui höjd
-//längd på orm och arr är ormens alla positioner
-//fpsint är olika interval för move()
-//then,now,fpsint,fpsindex kontrollerar move() interval i updatemove()
-//loopthen,looptime kontrollerar tiden for loop effekt
-//isloop,isover kontrollerar olika event
 var canvas=document.querySelector('.game')
 var Menu = document.querySelector('.menu')
 var Shop = document.querySelector('.shop')
 var Control = document.querySelector('.control')
 var ctx=canvas.getContext('2d')
-
 var width=15
 var height=15
 var res=32
 var uiHeight=50
 canvas.width=width*res
 canvas.height=uiHeight+height*res
-var then,now,fpsint,fpsIndex,loopThen,isLoop,loopTime,coins,isOver
+
+//then,now,fpsint,fpsindex kontrollerar move() interval i updatemove()
+var then,now,fpsint,fpsIndex
+
+//isloop,isover kontrollerar olika event. loopthen,looptime kontrollerar tiden for loop effekt
+var loopThen,isLoop,loopTime,coins,isOver
+
+//längd på orm och arr är ormens alla positioner
 var applePos,snakeLength,snakeRecord,pos,dir,rotation,isBombed
 var bombPos=[]
 var loopPos=[]
@@ -62,13 +63,13 @@ var upgrade1,upgrade2,upgrade1cost,upgrade2cost
 
 //olika värden för animationer
 var spriteAnim=[
-    new Sprite('apple',84,84, 0, 9, 150),
+    new Sprite('apple',84,84, 0, 9, 120),
     new Sprite('bomb',256,256, 0, 0, 0),
-    new Sprite('earth',128,128, 0, 63, 1),
+    new Sprite('earth',128,128, 0, 63, 60),
     new Sprite('body',90,90, 0, 0, 0),
-    new Sprite('body',90,90, 0, 3, 100),
+    new Sprite('body',90,90, 0, 3, 60),
     new Sprite('body',90,90, 4, 4, 0),
-    new Sprite('coin',44,44, 0, 11, 150),
+    new Sprite('coin',44,44, 0, 11, 60),
 ]
 
 //går igenom alla tiles som inte innehåller en sprite
@@ -128,6 +129,7 @@ function game(){
     }
 
     fpsint = 260 - 30 * fpsIndex
+    //spriteAnim[4].fpsint
 }
 
 //när ormer kolliderar en sprängs
@@ -139,9 +141,9 @@ function gameover(){
 function explode(){
     var explode = new Sprite('explode',100,100, 0, 49, 50)
     spriteAnim.push(explode)
-    explode.x=0;
-    explode.y=-4;
-    explode.scale=500
+    explode.x=-2;
+    explode.y=-5;
+    explode.scale=600
 }
 
 //kollar om ormen kolliderar med item
@@ -309,16 +311,17 @@ function draw(){
     ctx.fillText(`LENGTH: ${snakeArr.length-1}`, 40, 24)
     ctx.fillStyle = 'black'
     ctx.fillText(`${coins}`, 285, 24)
+
     if(isLoop){
         ctx.fillStyle = 'blue'
         ctx.fillText(`LOOP: ${Math.round((loopTime - (now - loopThen)) / 1000)}`, 175, 24)
-    } 
+    }
 
-    //rita bilder på ui
+    //rita bilder på ui, index är 7 för ui sprites
     for(let i = 7; i < spriteAnim.length; i++){
         if(spriteAnim[i].name != 'explode'){
-            if(spriteAnim[i].name === 'earth'){
-                if(isLoop) Sprite.draw(spriteAnim[i], spriteAnim[i].x, spriteAnim[i].y)
+            if(spriteAnim[i].name === 'earth' && isLoop){
+                Sprite.draw(spriteAnim[i], spriteAnim[i].x, spriteAnim[i].y)
             }
             else{
                 Sprite.draw(spriteAnim[i], spriteAnim[i].x, spriteAnim[i].y)
@@ -382,13 +385,13 @@ window.addEventListener('load', function(){
     body.y=0.25
     body.scale=24
 
-    var earth = new Sprite('earth',128,128, 0, 63, 1)
+    var earth = new Sprite('earth',128,128, 0, 63, spriteAnim[2].fpsint)
     spriteAnim.push(earth)
     earth.x=4.5
     earth.y=0.25
     earth.scale=24
 
-    var coin = new Sprite('coin',44,44, 0, 11, 150)
+    var coin = new Sprite('coin',44,44, 0, 11, spriteAnim[6].fpsint)
     spriteAnim.push(coin)
     coin.x=8
     coin.y=0.25
@@ -443,7 +446,6 @@ function control(){
 }
 
 //start startas med en button
-//sätter date för sprite till date.now() och sätter frame till minframe
 function start(){
     document.addEventListener('keydown', function(e){keydown(e.key)})
     Menu.classList.remove('show')
@@ -459,7 +461,7 @@ function start(){
     //huvud position
     //huvudets riktning
     //hela ormen
-    snakeLength=5
+    snakeLength=6
     pos={x:1,y:7}
     dir={x:1,y:0}
     snakeArr=[{x:pos.x,y:pos.y}]
@@ -469,6 +471,7 @@ function start(){
 
     //sätter sprite.then till then
     then = Date.now()
+    //sätter date för sprite till date.now() och sätter frame till minframe med sprite.update()
     for(let i = 0; i < spriteAnim.length; i++){
         spriteAnim[i].then = then
         spriteAnim[i].update()
@@ -496,7 +499,7 @@ function update(){
 
             //om gameover animeras explode
             if(spriteAnim[i].name==='explode' && spriteAnim[i].frame===spriteAnim[i].maxFrame){
-                spriteAnim.splice(spriteAnim.length - 1, 1)
+                spriteAnim.splice(i, 1)
                 continue
             }
 
