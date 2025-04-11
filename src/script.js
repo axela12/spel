@@ -320,8 +320,8 @@ function draw(){
     //rita bilder på ui, index är 7 för ui sprites
     for(let i = 7; i < spriteAnim.length; i++){
         if(spriteAnim[i].name != 'explode'){
-            if(spriteAnim[i].name === 'earth' && isLoop){
-                Sprite.draw(spriteAnim[i], spriteAnim[i].x, spriteAnim[i].y)
+            if(spriteAnim[i].name === 'earth'){
+                if(isLoop) Sprite.draw(spriteAnim[i], spriteAnim[i].x, spriteAnim[i].y)
             }
             else{
                 Sprite.draw(spriteAnim[i], spriteAnim[i].x, spriteAnim[i].y)
