@@ -40,6 +40,7 @@ var Menu = document.querySelector('.menu')
 var Shop = document.querySelector('.shop')
 var Control = document.querySelector('.control')
 var ctx=canvas.getContext('2d')
+
 var width=15
 var height=15
 var res=32
@@ -71,6 +72,12 @@ var spriteAnim=[
     new Sprite('body',90,90, 4, 4, 0),
     new Sprite('coin',44,44, 0, 11, 60),
 ]
+
+
+
+
+
+
 
 //går igenom alla tiles som inte innehåller en sprite
 //väljer random från möjliga tiles
@@ -112,6 +119,23 @@ function randomChance(list, r, chance){
     }
 }
 
+
+
+
+
+
+
+//spelar upp ljud
+function playAudio(id){
+    var audio = new Audio(document.getElementById(id).src) //en audio klon med id
+    
+    if(id === 'eat'){
+        audio.playbackRate = 2 * 260 / fpsint //eat.mp3 är samma som fpsint
+    }
+
+    audio.play()
+}
+
 //ändra fpsint beroende på längd
 //upgrade2 ger långsammare orm
 function game(){
@@ -129,7 +153,6 @@ function game(){
     }
 
     fpsint = 260 - 30 * fpsIndex
-    //spriteAnim[4].fpsint
 }
 
 //när ormer kolliderar en sprängs
@@ -139,11 +162,12 @@ function gameover(){
 }
 
 function explode(){
-    var explode = new Sprite('explode',100,100, 0, 49, 50)
+    var explode = new Sprite('explode',100,100, 0, 49, 30)
     spriteAnim.push(explode)
     explode.x=-2;
     explode.y=-5;
     explode.scale=600
+    playAudio('explosion')
 }
 
 //kollar om ormen kolliderar med item
@@ -182,6 +206,7 @@ function move(){
     if(isCollide(applePos)){
         applePos = random()
         snakeLength++
+        playAudio('food')
 
         var r = Math.random()
         randomChance(bombPos, r, 0.7)
@@ -212,6 +237,7 @@ function move(){
             isLoop = true
             loopThen = now
             loopPos.splice(i, 1)
+            playAudio('food')
         }
     }
 
@@ -220,11 +246,14 @@ function move(){
         if(isCollide(coinPos[i])){
             coins++
             coinPos.splice(i, 1)
+            playAudio('food')
         }
     }
 
+    //kollar om ormen är inom length
     if(snakeArr.length>snakeLength) snakeArr.shift()
 
+    //ingen rotation om man är bombad
     if(isBombed){
         if(snakeArr.length <= snakeLength) isBombed = false
     }
@@ -368,6 +397,12 @@ function draw(){
     ctx.restore()
 }
 
+
+
+
+
+
+
 //när alla filer och dokument har laddat
 window.addEventListener('load', function(){
     coins = 0
@@ -445,6 +480,10 @@ function control(){
     Control.classList.add('show')
 }
 
+
+
+
+
 //start startas med en button
 function start(){
     document.addEventListener('keydown', function(e){keydown(e.key)})
@@ -476,11 +515,12 @@ function start(){
         spriteAnim[i].then = then
         spriteAnim[i].update()
     }
+    playAudio('start')
     update()
     updateMove()
 }
 
-//kör move() vid fpsint millisekunder
+//kör vid 60fps
 function update(){
     requestAnimationFrame(update)
     now = Date.now()
@@ -524,5 +564,6 @@ function updateMove(){
         then = now-((now - then) % fpsint)
 
         move()
+        playAudio('eat')
     }
 }
