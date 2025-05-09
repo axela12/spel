@@ -130,7 +130,7 @@ function playAudio(id){
     var audio = new Audio(document.getElementById(id).src) //en audio klon med id
     
     if(id === 'eat'){
-        audio.playbackRate = 2 * 260 / fpsint //eat.mp3 är samma som fpsint
+        audio.playbackRate = 2 * 300 / fpsint //eat.mp3 är samma som fpsint
     }
 
     audio.play()
@@ -152,7 +152,7 @@ function game(){
         if(snakeLength > 25) fpsIndex = 5
     }
 
-    fpsint = 260 - 30 * fpsIndex
+    fpsint = 300 - 30 * fpsIndex
 }
 
 //när ormer kolliderar en sprängs
