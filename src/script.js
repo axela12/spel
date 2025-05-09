@@ -1,6 +1,8 @@
 //sprite klass med img sprite size, frames och interval
 class Sprite{
     //frame blir minframe-1 för att updatera den vid start
+    //fpsint är hur snabb en frame är,
+    // width och height är bredden på första framen som börjar vid x=0 och y=0
     constructor(name,spriteWidth, spriteHeight, minFrame, maxFrame, fpsint){
         this.name=name
         this.image=document.getElementById(name)
@@ -34,13 +36,14 @@ class Sprite{
     }
 }
 
-//canvas, context, spelplanens bredd och höjd, upplösning per tile, ui höjd
+//canvas, rit context
 var canvas=document.querySelector('.game')
 var Menu = document.querySelector('.menu')
 var Shop = document.querySelector('.shop')
 var Control = document.querySelector('.control')
 var ctx=canvas.getContext('2d')
 
+//spelplanens bredd och höjd, upplösning res per tile, canvas.height = uihöjd+pixelhöjd för spelplanen
 var width=15
 var height=15
 var res=32
@@ -161,6 +164,7 @@ function gameover(){
     isOver=true
 }
 
+//rita explode sprite och pushar på animationslista och spela ljud
 function explode(){
     var explode = new Sprite('explode',100,100, 0, 49, 30)
     spriteAnim.push(explode)
@@ -413,7 +417,7 @@ window.addEventListener('load', function(){
     upgrade2cost = 10
     snakeRecord = 0
 
-    //ui bilder
+    //olika ui bilder
     var body = new Sprite('body',90,90, 0, 3, 100)
     spriteAnim.push(body)
     body.x=0.25
@@ -496,10 +500,7 @@ function start(){
     loopPos=[]
     coinPos=[]
 
-    //längd på orm
-    //huvud position
-    //huvudets riktning
-    //hela ormen
+    //längd på orm, huvud position, huvudets riktning, första kroppen är huvudets position
     snakeLength=6
     pos={x:1,y:7}
     dir={x:1,y:0}
